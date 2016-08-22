@@ -19,4 +19,10 @@ public class PersonCoordinate {
     private Location location;
 
     private Date updated;
+
+    public PersonCoordinate(long number, Location location, Date updated){
+        this.number = number;
+        this.location = location;
+        this.updated = updated;
+    }
 }

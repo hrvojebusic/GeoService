@@ -22,13 +22,10 @@ public class Application {
     @Autowired
     private PersonCoordinateRepository personCoordinateRepository;
 
-    @PostConstruct
-    private void init(){
-        PersonCoordinate personCoordinate = new PersonCoordinate();
-        personCoordinate.setNumber(233434L);
-        personCoordinate.setLocation(new Location(2.00,3.00));
-        personCoordinate.setUpdated(Calendar.getInstance().getTime());
-        personCoordinateRepository.save(personCoordinate);
-        System.out.println(personCoordinateRepository.findAll());
-    }
+//    @PostConstruct
+//    private void init(){
+//        PersonCoordinate personCoordinate = new PersonCoordinate(233434L, new Location(2.00,3.00), Calendar.getInstance().getTime());
+//        personCoordinateRepository.save(personCoordinate);
+//        System.out.println(personCoordinateRepository.findAll());
+//    }
 }
