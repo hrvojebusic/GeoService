@@ -31,23 +31,14 @@ public class LocationAnalyzer {
             throw new PolygonNotFoundException("PolygonEntity under id " + polygonId + " does not exist.");
         }
 
-        Coordinate[] coordinates = new Coordinate[polygonEntity.getCoordinates().length];
-        for (int i = 0; i < coordinates.length; i++) {
-            Location location = polygonEntity.getCoordinates()[i];
-            coordinates[i] = new Coordinate(location.getX(), location.getY());
-        }
-
-        GeometryFactory geometryFactory = new GeometryFactory();
-        LinearRing linearRing = new GeometryFactory().createLinearRing(coordinates);
-        final Polygon polygon = new Polygon(linearRing, null, geometryFactory);
-
+        Polygon polygon = PolygonEntity.to(polygonEntity);
         List<PersonCoordinate> persons = personCoordinateRepository.findAll();
         List<PersonCoordinate> result = new ArrayList<PersonCoordinate>();
 
         for (PersonCoordinate person : persons) {
             Location location = person.getLocation();
             Geometry geometry = new GeometryFactory()
-                    .createPoint(new Coordinate(location.getX(),location.getY()));
+                    .createPoint(new Coordinate(location.getX(), location.getY()));
 
             if (polygon.contains(geometry)) {
                 result.add(person);
