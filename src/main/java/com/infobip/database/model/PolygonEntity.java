@@ -10,7 +10,7 @@ import javax.persistence.Id;
 
 @Data
 @Entity
-public class Polygon {
+public class PolygonEntity {
 
     @Setter(AccessLevel.PRIVATE)
     @Id
@@ -20,4 +20,11 @@ public class Polygon {
     private String description;
 
     private Location[] coordinates;
+
+    public Location getCoordinateAt(Integer index) {
+        if(index < 0 || index >= coordinates.length) {
+            throw new IndexOutOfBoundsException();
+        }
+        return coordinates[index];
+    }
 }

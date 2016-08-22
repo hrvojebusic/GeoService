@@ -1,8 +1,7 @@
 package com.infobip.database.repository;
 
-import com.infobip.database.model.PersonCoordinate;
-import com.infobip.database.model.Polygon;
+import com.infobip.database.model.PolygonEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PolygonRepository extends JpaRepository<Polygon, Integer>{
+public interface PolygonRepository extends JpaRepository<PolygonEntity, Integer>{
 }
