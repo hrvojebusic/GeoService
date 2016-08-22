@@ -5,12 +5,14 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 @Data
-public class PolygonEntity {
+@AllArgsConstructor
+public class PolygonalArea {
 
     @Setter(AccessLevel.PRIVATE)
     @Id
@@ -27,14 +29,14 @@ public class PolygonEntity {
         return coordinates[index];
     }
 
-    public static Polygon to(final PolygonEntity polygonEntity) {
+    public static Polygon to(final PolygonalArea polygonalArea) {
 
-        int numberOfCoordinates = polygonEntity.getCoordinates().length;
+        int numberOfCoordinates = polygonalArea.getCoordinates().length;
 
         Coordinate[] coordinates = new Coordinate[numberOfCoordinates];
         for (int i = 0; i < numberOfCoordinates; i++) {
-            Location location = polygonEntity.getCoordinateAt(i);
-            coordinates[i] = new Coordinate(location.getX(), location.getY());
+            Location location = polygonalArea.getCoordinateAt(i);
+            coordinates[i] = new Coordinate(location.getXCoordinate(), location.getYCoordinate());
         }
 
         GeometryFactory geometryFactory = new GeometryFactory();
