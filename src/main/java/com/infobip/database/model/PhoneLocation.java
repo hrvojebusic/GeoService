@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import java.util.Date;
 
 @Data
-public class PersonCoordinate {
+public class PhoneLocation {
 
     @Setter(AccessLevel.PRIVATE)
     @Id
@@ -20,7 +20,7 @@ public class PersonCoordinate {
 
     private Date updated;
 
-    public PersonCoordinate(long number, Location location, Date updated){
+    public PhoneLocation(long number, Location location, Date updated){
         this.number = number;
         this.location = location;
         this.updated = updated;

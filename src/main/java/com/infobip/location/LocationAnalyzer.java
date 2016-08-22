@@ -1,9 +1,9 @@
 package com.infobip.location;
 
 import com.infobip.database.model.Location;
-import com.infobip.database.model.PersonCoordinate;
+import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.model.PolygonalArea;
-import com.infobip.database.repository.PersonCoordinateRepository;
+import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.database.repository.PolygonRepository;
 import com.infobip.exception.custom.PolygonNotFoundException;
 import com.vividsolutions.jts.geom.*;
@@ -17,12 +17,12 @@ import java.util.List;
 public class LocationAnalyzer {
 
     @Autowired
-    PersonCoordinateRepository personCoordinateRepository;
+    PhoneLocationRepository phoneLocationRepository;
 
     @Autowired
     PolygonRepository polygonRepository;
 
-    public List<PersonCoordinate> getPersonsForPolygon(String polygonId) {
+    public List<PhoneLocation> getPersonsForPolygon(String polygonId) {
 
         PolygonalArea polygonalArea = null;
         try {
@@ -32,10 +32,10 @@ public class LocationAnalyzer {
         }
 
         Polygon polygon = PolygonalArea.to(polygonalArea);
-        List<PersonCoordinate> persons = personCoordinateRepository.findAll();
-        List<PersonCoordinate> result = new ArrayList<PersonCoordinate>();
+        List<PhoneLocation> persons = phoneLocationRepository.findAll();
+        List<PhoneLocation> result = new ArrayList<PhoneLocation>();
 
-        for (PersonCoordinate person : persons) {
+        for (PhoneLocation person : persons) {
             Location location = person.getLocation();
             Geometry geometry = new GeometryFactory()
                     .createPoint(new Coordinate(location.getXCoordinate(), location.getYCoordinate()));
