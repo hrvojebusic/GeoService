@@ -3,19 +3,14 @@ package com.infobip.database.model;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
 
 @Data
-@Entity
 public class PolygonEntity {
 
     @Setter(AccessLevel.PRIVATE)
     @Id
-    @GeneratedValue
-    private int id;
+    private String id;
 
     private String description;
 

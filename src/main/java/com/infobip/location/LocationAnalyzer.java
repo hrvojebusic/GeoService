@@ -10,7 +10,6 @@ import com.vividsolutions.jts.geom.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +22,12 @@ public class LocationAnalyzer {
     @Autowired
     PolygonRepository polygonRepository;
 
-    public List<PersonCoordinate> getPersonsForPolygon(Integer polygonId) {
+    public List<PersonCoordinate> getPersonsForPolygon(String polygonId) {
 
         PolygonEntity polygonEntity = null;
         try {
-            polygonEntity = polygonRepository.getOne(polygonId);
-        } catch (EntityNotFoundException e) {
+            polygonEntity = polygonRepository.findOne(polygonId);
+        } catch (Exception e) {
             throw new PolygonNotFoundException("PolygonEntity under id " + polygonId + " does not exist.");
         }
 

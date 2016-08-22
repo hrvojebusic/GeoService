@@ -1,7 +1,7 @@
 package com.infobip.database.repository;
 
 import com.infobip.database.model.PersonCoordinate;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface PersonCoordinateRepository extends JpaRepository<PersonCoordinate, Integer>{
+public interface PersonCoordinateRepository extends MongoRepository<PersonCoordinate, String> {
 }

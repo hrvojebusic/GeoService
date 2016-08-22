@@ -1,7 +1,7 @@
 package com.infobip.database.repository;
 
 import com.infobip.database.model.PolygonEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface PolygonRepository extends JpaRepository<PolygonEntity, Integer>{
+public interface PolygonRepository extends MongoRepository<PolygonEntity, String> {
 }
