@@ -1,5 +1,6 @@
 package com.infobip.controllers;
 
+import com.infobip.controllers.model.LocationResource;
 import com.infobip.controllers.model.PhoneLocationResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
@@ -27,7 +28,7 @@ public class PhoneLocationController {
     @RequestMapping(path = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
         List<PhoneLocationResource> resources = phoneLocationRepository.findAll().stream().
-                map(this::createResourceFromPhoneLocation)
+                map(PhoneLocationResource::from)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(resources);
     }
@@ -40,9 +41,10 @@ public class PhoneLocationController {
 
     @RequestMapping(path = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity add(@RequestBody PhoneLocationResource resource) {
-        PhoneLocation phoneLocation = createPhoneLocationFromResource(resource);
+        PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
+        phoneLocation.setUpdated(Calendar.getInstance().getTime());
         phoneLocationRepository.save(phoneLocation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createResourceFromPhoneLocation(phoneLocation));
+        return ResponseEntity.status(HttpStatus.CREATED).body(PhoneLocationResource.from(phoneLocation));
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
@@ -55,7 +57,7 @@ public class PhoneLocationController {
         PhoneLocation phoneLocation = phoneLocationRepository.findOne(id);
         boolean wasUpdated = false;
         if (resource.getLocation() != null) {
-            phoneLocation.setLocation(resource.getLocation());
+            phoneLocation.setLocation(LocationResource.to(resource.getLocation()));
             wasUpdated = true;
         }
         if (resource.getNumber() != null) {
@@ -66,15 +68,5 @@ public class PhoneLocationController {
             phoneLocation.setUpdated(Calendar.getInstance().getTime());
             phoneLocationRepository.save(phoneLocation);
         }
-    }
-
-    private PhoneLocationResource createResourceFromPhoneLocation(PhoneLocation phoneLocation){
-        return new PhoneLocationResource(phoneLocation.getId(), phoneLocation.getNumber(),
-                phoneLocation.getLocation(), phoneLocation.getUpdated());
-    }
-
-    private PhoneLocation createPhoneLocationFromResource(PhoneLocationResource resource){
-        return new PhoneLocation(resource.getNumber(), resource.getLocation(),
-                resource.getUpdated());
     }
 }

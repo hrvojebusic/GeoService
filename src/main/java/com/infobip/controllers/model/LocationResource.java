@@ -1,8 +1,8 @@
 package com.infobip.controllers.model;
 
-import com.infobip.database.model.Location;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 @Data
 @AllArgsConstructor
@@ -15,17 +15,17 @@ public class LocationResource {
     protected LocationResource() {
     }
 
-    public static Location to(LocationResource locationModel) {
-        return new Location(
+    public static GeoJsonPoint to(LocationResource locationModel) {
+        return new GeoJsonPoint(
                 locationModel.getXCoordinate(),
                 locationModel.getYCoordinate()
         );
     }
 
-    public static LocationResource from(Location location) {
+    public static LocationResource from(GeoJsonPoint location) {
         return new LocationResource(
-                location.getXCoordinate(),
-                location.getYCoordinate()
+                location.getX(),
+                location.getY()
         );
     }
 }

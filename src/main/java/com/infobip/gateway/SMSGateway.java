@@ -1,9 +1,9 @@
 package com.infobip.gateway;
 
 
-import org.apache.http.client.fluent.Request;
+/*import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectMapper;*/
 
 import java.io.IOException;
 import java.util.Collection;
@@ -32,14 +32,14 @@ public class SMSGateway implements Gateway {
                     r.getReceiver().getNumber(),
                     r.getText());
 
-            ObjectMapper mapper = new ObjectMapper();
+            /*ObjectMapper mapper = new ObjectMapper();
             String jsonInString  = mapper.writeValueAsString(smsPackage);
 
             String phrase = Request.Post(url)
                     .addHeader("Authorization","App " + apiKey)
                     .addHeader("Accept", "application/json")
                     .bodyString(jsonInString, ContentType.APPLICATION_JSON)
-                    .execute().returnResponse().getStatusLine().getReasonPhrase();
+                    .execute().returnResponse().getStatusLine().getReasonPhrase();*/
         }
     }
 }

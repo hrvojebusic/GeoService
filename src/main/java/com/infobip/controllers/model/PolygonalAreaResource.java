@@ -1,12 +1,15 @@
 package com.infobip.controllers.model;
 
-import com.infobip.database.model.Location;
-import com.infobip.database.model.PolygonalArea;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Setter;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
+@Setter(AccessLevel.PRIVATE)
 public class PolygonalAreaResource {
 
     private String id;
@@ -15,25 +18,7 @@ public class PolygonalAreaResource {
 
     private Integer userId;
 
-    private Location[] coordinates;
+    private List<LocationResource> coordinates;
 
     protected PolygonalAreaResource() {}
-
-    public static PolygonalArea to(PolygonalAreaResource polygonalAreaResource) {
-        return new PolygonalArea(
-                polygonalAreaResource.getId(),
-                polygonalAreaResource.getDescription(),
-                polygonalAreaResource.getUserId(),
-                polygonalAreaResource.getCoordinates()
-        );
-    }
-
-    public static PolygonalAreaResource from(PolygonalArea polygonalArea) {
-        return new PolygonalAreaResource(
-                polygonalArea.getId(),
-                polygonalArea.getDescription(),
-                polygonalArea.getUserId(),
-                polygonalArea.getCoordinates()
-        );
-    }
 }

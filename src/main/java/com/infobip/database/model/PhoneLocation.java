@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.Date;
 
@@ -14,13 +16,15 @@ public class PhoneLocation {
     @Id
     private String id;
 
-    private long number;
+    private Long number;
 
-    private Location location;
+    private GeoJsonPoint location;
 
     private Date updated;
 
-    public PhoneLocation(long number, Location location, Date updated){
+    protected PhoneLocation(){}
+
+    public PhoneLocation(long number, GeoJsonPoint location, Date updated){
         this.number = number;
         this.location = location;
         this.updated = updated;
