@@ -1,9 +1,7 @@
 package com.infobip.controllers.model;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 
@@ -12,7 +10,6 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public class PolygonResource {
 
     private List<LocationResource> coordinates;
@@ -23,7 +20,7 @@ public class PolygonResource {
                 polygonResource
                         .getCoordinates()
                         .stream()
-                        .map(lr -> new Point(lr.getXCoordinate(), lr.getYCoordinate()))
+                        .map(locationResource -> new Point(locationResource.getX(), locationResource.getY()))
                         .collect(Collectors.toList()));
     }
 

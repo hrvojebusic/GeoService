@@ -1,17 +1,14 @@
 package com.infobip.controllers.model;
 
 import com.infobip.database.model.PhoneLocation;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Setter;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
-@Setter(AccessLevel.PRIVATE)
 public class PhoneLocationResource {
 
     private String id;
@@ -33,8 +30,7 @@ public class PhoneLocationResource {
 
     public static PhoneLocation to(PhoneLocationResource resource){
         return new PhoneLocation(resource.getNumber(),
-                new GeoJsonPoint(resource.getLocation().getXCoordinate(), resource.getLocation().getYCoordinate()),
+                new GeoJsonPoint(resource.getLocation().getX(), resource.getLocation().getY()),
                 resource.getUpdated());
     }
-
 }

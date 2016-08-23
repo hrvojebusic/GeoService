@@ -8,17 +8,16 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 @AllArgsConstructor
 public class LocationResource {
 
-    private Double xCoordinate;
+    private Double x;
 
-    private Double yCoordinate;
+    private Double y;
 
-    protected LocationResource() {
-    }
+    protected LocationResource() {}
 
     public static GeoJsonPoint to(LocationResource locationModel) {
         return new GeoJsonPoint(
-                locationModel.getXCoordinate(),
-                locationModel.getYCoordinate()
+                locationModel.getX(),
+                locationModel.getY()
         );
     }
 
