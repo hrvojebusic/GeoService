@@ -1,4 +1,4 @@
-package com.infobip.controllers;
+package com.infobip;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;

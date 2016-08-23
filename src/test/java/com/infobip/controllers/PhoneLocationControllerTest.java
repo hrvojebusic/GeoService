@@ -1,5 +1,6 @@
 package com.infobip.controllers;
 
+import com.infobip.WebIntegrationTestBase;
 import com.infobip.database.model.PhoneLocation;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PhoneLocationControllerTest extends WebIntegrationTestBase{
+public class PhoneLocationControllerTest extends WebIntegrationTestBase {
 
     private final static String GETALL_RESPONSE = "/getAllResponse.json";
     private final static String GETINAREA_RESPONSE = "/getUsersInAreaResponse.json";

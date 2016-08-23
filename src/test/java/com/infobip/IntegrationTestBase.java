@@ -1,6 +1,5 @@
-package com.infobip.controllers;
+package com.infobip;
 
-import com.infobip.Application;
 import com.infobip.database.repository.PhoneLocationRepository;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -16,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class IntegrationTestBase {
 
     @Autowired
-    PhoneLocationRepository phoneLocationRepository;
+    protected PhoneLocationRepository phoneLocationRepository;
 
     @Before
     public void setupIntegrationTestBase() {
