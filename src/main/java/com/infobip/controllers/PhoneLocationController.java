@@ -2,8 +2,10 @@ package com.infobip.controllers;
 
 import com.infobip.controllers.model.LocationResource;
 import com.infobip.controllers.model.PhoneLocationResource;
+import com.infobip.controllers.model.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
+import com.infobip.location.LocationAnalyzer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,18 +21,25 @@ import java.util.stream.Collectors;
 public class PhoneLocationController {
 
     private final PhoneLocationRepository phoneLocationRepository;
+    private final LocationAnalyzer locationAnalyzer;
 
     @Autowired
-    public PhoneLocationController(PhoneLocationRepository phoneLocationRepository) {
+    public PhoneLocationController(PhoneLocationRepository phoneLocationRepository, LocationAnalyzer locationAnalyzer) {
         this.phoneLocationRepository = phoneLocationRepository;
+        this.locationAnalyzer = locationAnalyzer;
     }
 
-    @RequestMapping(path = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
         List<PhoneLocationResource> resources = phoneLocationRepository.findAll().stream().
                 map(PhoneLocationResource::from)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(resources);
+    }
+
+    @RequestMapping(path= "/users", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
+        return ResponseEntity.ok( locationAnalyzer.getPersonsForPolygon(resource));
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
