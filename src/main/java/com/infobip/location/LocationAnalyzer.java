@@ -4,7 +4,7 @@ import com.infobip.database.model.Location;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.model.PolygonalArea;
 import com.infobip.database.repository.PhoneLocationRepository;
-import com.infobip.database.repository.PolygonRepository;
+import com.infobip.database.repository.PolygonalAreaRepository;
 import com.infobip.exception.custom.PolygonNotFoundException;
 import com.vividsolutions.jts.geom.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +20,13 @@ public class LocationAnalyzer {
     PhoneLocationRepository phoneLocationRepository;
 
     @Autowired
-    PolygonRepository polygonRepository;
+    PolygonalAreaRepository polygonalAreaRepository;
 
     public List<PhoneLocation> getPersonsForPolygon(String polygonId) {
 
         PolygonalArea polygonalArea = null;
         try {
-            polygonalArea = polygonRepository.findOne(polygonId);
+            polygonalArea = polygonalAreaRepository.findOne(polygonId);
         } catch (Exception e) {
             throw new PolygonNotFoundException("PolygonalArea under id " + polygonId + " does not exist.");
         }

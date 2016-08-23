@@ -20,7 +20,17 @@ public class PolygonalArea {
 
     private String description;
 
+    private int userId;
+
     private Location[] coordinates;
+
+    public PolygonalArea(String description, int userId, Location[] coordinates) {
+        this.description = description;
+        this.userId = userId;
+        this.coordinates = coordinates;
+    }
+
+    protected PolygonalArea() {}
 
     public Location getCoordinateAt(Integer index) {
         if (index < 0 || index >= coordinates.length) {

@@ -27,7 +27,7 @@ public class PhoneLocationController {
     @RequestMapping(path = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
         List<PhoneLocationResource> resources = phoneLocationRepository.findAll().stream().
-                map(this::createResourceFromPersonCoordinate)
+                map(this::createResourceFromPhoneLocation)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(resources);
     }
@@ -40,9 +40,9 @@ public class PhoneLocationController {
 
     @RequestMapping(path = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity add(@RequestBody PhoneLocationResource resource) {
-        PhoneLocation phoneLocation = createPersonCoordinateFromResource(resource);
+        PhoneLocation phoneLocation = createPhoneLocationFromResource(resource);
         phoneLocationRepository.save(phoneLocation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createResourceFromPersonCoordinate(phoneLocation));
+        return ResponseEntity.status(HttpStatus.CREATED).body(createResourceFromPhoneLocation(phoneLocation));
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
@@ -68,12 +68,12 @@ public class PhoneLocationController {
         }
     }
 
-    private PhoneLocationResource createResourceFromPersonCoordinate(PhoneLocation phoneLocation){
+    private PhoneLocationResource createResourceFromPhoneLocation(PhoneLocation phoneLocation){
         return new PhoneLocationResource(phoneLocation.getId(), phoneLocation.getNumber(),
                 phoneLocation.getLocation(), phoneLocation.getUpdated());
     }
 
-    private PhoneLocation createPersonCoordinateFromResource(PhoneLocationResource resource){
+    private PhoneLocation createPhoneLocationFromResource(PhoneLocationResource resource){
         return new PhoneLocation(resource.getNumber(), resource.getLocation(),
                 resource.getUpdated());
     }

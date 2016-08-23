@@ -13,6 +13,8 @@ public class PolygonalAreaResource {
 
     private String description;
 
+    private Integer userId;
+
     private Location[] coordinates;
 
     protected PolygonalAreaResource() {}
@@ -21,6 +23,7 @@ public class PolygonalAreaResource {
         return new PolygonalArea(
                 polygonalAreaResource.getId(),
                 polygonalAreaResource.getDescription(),
+                polygonalAreaResource.getUserId(),
                 polygonalAreaResource.getCoordinates()
         );
     }
@@ -29,6 +32,7 @@ public class PolygonalAreaResource {
         return new PolygonalAreaResource(
                 polygonalArea.getId(),
                 polygonalArea.getDescription(),
+                polygonalArea.getUserId(),
                 polygonalArea.getCoordinates()
         );
     }
