@@ -1,15 +1,17 @@
 package com.infobip.location;
 
 import com.infobip.WebIntegrationTestBase;
-import com.infobip.controllers.model.LocationResource;
-import com.infobip.controllers.model.PhoneLocationResource;
-import com.infobip.controllers.model.PolygonResource;
+import com.infobip.controllers.model.resource.LocationResource;
+import com.infobip.controllers.model.resource.PhoneLocationResource;
+import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
+import com.infobip.database.model.Subscriber;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -41,10 +43,10 @@ public class LocationAnalyzerTest extends WebIntegrationTestBase {
 
     private List<PhoneLocation> getTestPhoneLocationList() {
         return Arrays.asList(
-                getPhoneLocation(385912121212L, new GeoJsonPoint(15, 15), new Date()),
-                getPhoneLocation(385992323232L, new GeoJsonPoint(1, 4), new Date()),
-                getPhoneLocation(385982424242L, new GeoJsonPoint(4, 1), new Date()),
-                getPhoneLocation(385952525252L, new GeoJsonPoint(12, 12), new Date())
+                getPhoneLocation(new Subscriber(Collections.emptyMap()), 385912121212L, new GeoJsonPoint(15, 15), new Date()),
+                getPhoneLocation(new Subscriber(Collections.emptyMap()), 385992323232L, new GeoJsonPoint(1, 4), new Date()),
+                getPhoneLocation(new Subscriber(Collections.emptyMap()), 385982424242L, new GeoJsonPoint(4, 1), new Date()),
+                getPhoneLocation(new Subscriber(Collections.emptyMap()), 385952525252L, new GeoJsonPoint(12, 12), new Date())
         );
     }
 
@@ -56,8 +58,8 @@ public class LocationAnalyzerTest extends WebIntegrationTestBase {
         ));
     }
 
-    private PhoneLocation getPhoneLocation(Long number, GeoJsonPoint location, Date updated) {
-        return new PhoneLocation(number, location, updated);
+    private PhoneLocation getPhoneLocation(Subscriber subscriber, Long number, GeoJsonPoint location, Date updated) {
+        return new PhoneLocation(subscriber, number, location, updated);
     }
 
     private LocationResource getLocationResource(double x, double y) {

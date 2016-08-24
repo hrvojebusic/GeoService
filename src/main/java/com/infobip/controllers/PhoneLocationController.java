@@ -1,8 +1,8 @@
 package com.infobip.controllers;
 
-import com.infobip.controllers.model.LocationResource;
-import com.infobip.controllers.model.PhoneLocationResource;
-import com.infobip.controllers.model.PolygonResource;
+import com.infobip.controllers.model.resource.LocationResource;
+import com.infobip.controllers.model.resource.PhoneLocationResource;
+import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;

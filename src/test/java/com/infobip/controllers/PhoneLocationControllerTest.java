@@ -2,17 +2,16 @@ package com.infobip.controllers;
 
 import com.infobip.WebIntegrationTestBase;
 import com.infobip.database.model.PhoneLocation;
+import com.infobip.database.model.Subscriber;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.http.MediaType;
 
-import static org.junit.Assert.*;
-import org.skyscreamer.jsonassert.JSONAssert;
-
 import java.util.Calendar;
+import java.util.Collections;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,9 +23,12 @@ public class PhoneLocationControllerTest extends WebIntegrationTestBase {
 
     @Before
     public void setupUsers(){
-        phoneLocationRepository.save(new PhoneLocation(385989923327L, new GeoJsonPoint(2,3), Calendar.getInstance().getTime()));
-        phoneLocationRepository.save(new PhoneLocation(385981217232L, new GeoJsonPoint(12,31), Calendar.getInstance().getTime()));
-        phoneLocationRepository.save(new PhoneLocation(385984444444L, new GeoJsonPoint(4,8), Calendar.getInstance().getTime()));
+        phoneLocationRepository.save(
+                new PhoneLocation(new Subscriber(Collections.emptyMap()), 385989923327L, new GeoJsonPoint(2,3), Calendar.getInstance().getTime()));
+        phoneLocationRepository.save(
+                new PhoneLocation(new Subscriber(Collections.emptyMap()), 385981217232L, new GeoJsonPoint(12,31), Calendar.getInstance().getTime()));
+        phoneLocationRepository.save(
+                new PhoneLocation(new Subscriber(Collections.emptyMap()), 385984444444L, new GeoJsonPoint(4,8), Calendar.getInstance().getTime()));
     }
 
     @Test

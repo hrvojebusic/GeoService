@@ -1,4 +1,4 @@
-package com.infobip.controllers.model;
+package com.infobip.controllers.model.resource;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,8 @@
 package com.infobip.location;
 
 import com.infobip.controllers.model.*;
+import com.infobip.controllers.model.resource.PhoneLocationResource;
+import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.sms.gateway.SMSGateway;
 import com.infobip.sms.gateway.request.GatewayRequest;

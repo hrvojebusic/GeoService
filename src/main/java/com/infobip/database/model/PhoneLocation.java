@@ -15,15 +15,19 @@ public class PhoneLocation {
     @Id
     private String id;
 
+    private Subscriber subscriber;
+
     private Long number;
 
     private GeoJsonPoint location;
 
     private Date updated;
 
-    protected PhoneLocation(){}
+    protected PhoneLocation() {
+    }
 
-    public PhoneLocation(Long number, GeoJsonPoint location, Date updated){
+    public PhoneLocation(Subscriber subscriber, Long number, GeoJsonPoint location, Date updated) {
+        this.subscriber = subscriber;
         this.number = number;
         this.location = location;
         this.updated = updated;

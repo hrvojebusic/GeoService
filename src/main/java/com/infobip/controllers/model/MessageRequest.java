@@ -1,9 +1,9 @@
 package com.infobip.controllers.model;
 
+import com.infobip.controllers.model.resource.PolygonResource;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
