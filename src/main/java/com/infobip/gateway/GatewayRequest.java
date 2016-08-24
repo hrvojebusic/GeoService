@@ -1,24 +1,15 @@
 package com.infobip.gateway;
 
-/**
- * Gateway request.
- * Created by hbusic on 10.8.2016.
- */
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class GatewayRequest {
 
-    private Member receiver;
+    private String from;
+    private String to;
     private String text;
 
-    public GatewayRequest(Member receiver, String text) {
-        this.receiver = receiver;
-        this.text = text;
-    }
-
-    public Member getReceiver() {
-        return receiver;
-    }
-
-    public String getText() {
-        return text;
-    }
+    protected GatewayRequest() {}
 }

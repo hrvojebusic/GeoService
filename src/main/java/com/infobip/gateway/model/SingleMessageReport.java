@@ -8,11 +8,9 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class MessageBulkReport {
+public class SingleMessageReport {
 
-    private String bulkId;
+    private List<MessageReport> messages = new ArrayList<>();
 
-    private List<MessageSingleReport> messages = new ArrayList<>();
-
-    protected MessageBulkReport() {}
+    protected SingleMessageReport() {}
 }

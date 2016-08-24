@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MessageSingleReport {
+public class MessageReport {
 
     private String to;
 
@@ -13,5 +13,5 @@ public class MessageSingleReport {
 
     private String messageId;
 
-    protected MessageSingleReport() {}
+    protected MessageReport() {}
 }
