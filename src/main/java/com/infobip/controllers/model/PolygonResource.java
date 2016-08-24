@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PolygonResource {
 
+    @Size(min=4)
     private List<LocationResource> coordinates;
 
     protected PolygonResource() {}

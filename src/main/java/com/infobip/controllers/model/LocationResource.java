@@ -4,12 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @AllArgsConstructor
 public class LocationResource {
 
+    @NotNull
     private Double x;
 
+    @NotNull
     private Double y;
 
     protected LocationResource() {}

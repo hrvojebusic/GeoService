@@ -8,7 +8,7 @@ import lombok.Setter;
 @Data
 @AllArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class MessageStatus {
+public class MessageRequestStatus {
 
     private String number;
 
