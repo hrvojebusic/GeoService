@@ -66,7 +66,9 @@ public class PhoneLocationController {
         PhoneLocation phoneLocation = phoneLocationRepository.findOne(id);
         boolean wasUpdated = false;
         if (resource.getLocation() != null) {
-            phoneLocation.setLocation(LocationResource.to(resource.getLocation()));
+            phoneLocation.setLocation(
+                    LocationResource.to(resource.getLocation())
+            );
             wasUpdated = true;
         }
         if (resource.getNumber() != null) {

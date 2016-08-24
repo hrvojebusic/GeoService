@@ -17,6 +17,7 @@ public class PolygonResource {
     private List<LocationResource> coordinates;
 
     protected PolygonResource() {}
+
     public static Polygon to(PolygonResource polygonResource) {
         return new Polygon(
                 polygonResource
