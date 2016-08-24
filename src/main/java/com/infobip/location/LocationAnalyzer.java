@@ -1,17 +1,16 @@
 package com.infobip.location;
 
-import com.infobip.controllers.model.MessageRequest;
-import com.infobip.controllers.model.MessageRequestReport;
-import com.infobip.controllers.model.PhoneLocationResource;
-import com.infobip.controllers.model.PolygonResource;
+import com.infobip.controllers.model.*;
 import com.infobip.database.repository.PhoneLocationRepository;
-import com.infobip.gateway.Gateway;
-import com.infobip.gateway.GatewayRequest;
+import com.infobip.sms.gateway.SMSGateway;
+import com.infobip.sms.gateway.request.GatewayRequest;
+import com.infobip.sms.gateway.request.GatewayRequestEntity;
+import com.infobip.sms.gateway.response.GatewayResponse;
+import com.infobip.sms.gateway.response.GatewayResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +21,7 @@ public class LocationAnalyzer {
     private PhoneLocationRepository phoneLocationRepository;
 
     @Autowired
-    private List<Gateway> gateways;
+    private SMSGateway smsGateway;
 
     public List<PhoneLocationResource> getPersonsForPolygon(PolygonResource polygonResource) {
         return phoneLocationRepository
@@ -32,22 +31,30 @@ public class LocationAnalyzer {
                 .collect(Collectors.toList());
     }
 
-    public Collection<MessageRequestReport> notifyPersonsForPolygon(MessageRequest messageRequest) {
-        List<PhoneLocationResource> result = getPersonsForPolygon(messageRequest.getPolygon());
-        List<MessageRequestReport> collection = new ArrayList<>();
+    public MessageReport notifyPersonsSms(MessageRequest messageRequest) {
 
-        for(Gateway gateway : gateways) {
-                collection.add(gateway.push(
-                        result  .stream()
-                                .map(plr -> new GatewayRequest(
-                                        messageRequest.getSender(),
-                                        String.valueOf(plr.getNumber()),
-                                        messageRequest.getMessage()
-                                ))
-                                .collect(Collectors.toList()))
-            );
+        List<PhoneLocationResource> toBeNotified = getPersonsForPolygon(messageRequest.getPolygon());
+
+        GatewayRequest gatewayRequest = new GatewayRequest(
+                Collections.singletonList(new GatewayRequestEntity(
+                        messageRequest.getSender(),
+                        toBeNotified.stream().map(PhoneLocationResource::getNumber).map(String::valueOf).collect(Collectors.toList()),
+                        messageRequest.getMessage()
+                ))
+        );
+
+        GatewayResponse gatewayResponse = smsGateway.push(gatewayRequest);
+
+        MessageReport messageReport = new MessageReport(gatewayResponse.getBulkId());
+        for (GatewayResponseEntity gatewayResponseEntity : gatewayResponse.getMessages()) {
+            messageReport.addMessageStatus(new MessageReportStatus(
+                    gatewayResponseEntity.getTo(),
+                    gatewayResponseEntity.getStatus().getDescription(),
+                    gatewayResponseEntity.getSmsCount(),
+                    gatewayResponseEntity.getMessageId()
+            ));
         }
 
-        return collection;
+        return messageReport;
     }
 }

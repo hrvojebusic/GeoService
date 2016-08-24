@@ -8,11 +8,13 @@ import lombok.Setter;
 @Data
 @AllArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class MessageRequestStatus {
+public class MessageReportStatus {
 
     private String number;
 
-    private String state;
+    private String status;
+
+    private Integer smsCount;
 
     private String messageId;
 }

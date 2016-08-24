@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 @RestController
 @RequestMapping("/messages")
 public class GeoMessageController {
@@ -22,6 +20,6 @@ public class GeoMessageController {
 
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity sendMessage(@Validated @RequestBody MessageRequest request) {
-            return ResponseEntity.ok(locationAnalyzer.notifyPersonsForPolygon(request));
+            return ResponseEntity.ok(locationAnalyzer.notifyPersonsSms(request));
     }
 }
