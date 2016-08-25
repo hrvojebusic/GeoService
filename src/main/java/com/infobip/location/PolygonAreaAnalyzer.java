@@ -10,7 +10,6 @@ import com.infobip.gateway.sms.request.GatewayRequestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ public class PolygonAreaAnalyzer {
     @Autowired
     private List<SMSGateway> gateways;
 
-    @Scheduled(fixedRate = 60000)
     public void checkPolygonalAreas() {
         for (PolygonalArea polygonalArea : polygonalAreaRepository.findAll()) {
 
@@ -51,7 +49,7 @@ public class PolygonAreaAnalyzer {
                     .isPresent());
 
             for (SMSGateway gateway : gateways) {
-                if(!usersThatEnteredTheArea.isEmpty()) {
+                if (!usersThatEnteredTheArea.isEmpty()) {
                     gateway.push(new GatewayRequest(
                             usersThatEnteredTheArea.stream()
                                     .map(pls -> new GatewayRequestEntity(
@@ -61,14 +59,18 @@ public class PolygonAreaAnalyzer {
                                     )).collect(Collectors.toList())));
                 }
 
-                if(!usersThatLeftArea.isEmpty()) {
-                    gateway.push(new GatewayRequest(
-                            usersThatLeftArea.stream()
-                                    .map(pls -> new GatewayRequestEntity(
-                                            polygonalArea.getSender(),
-                                            Collections.singletonList(String.valueOf(phoneLocationRepository.findOne(pls).getNumber())),
-                                            polygonalArea.getOutMessage())
-                                    ).collect(Collectors.toList())));
+                List<GatewayRequestEntity> gatewayRequestEntities = new ArrayList<>();
+                usersThatLeftArea.forEach(user -> {
+                    PhoneLocation phoneLocation = phoneLocationRepository.findOne(user);
+                    if (phoneLocation != null) {
+                        gatewayRequestEntities.add(new GatewayRequestEntity(
+                                polygonalArea.getSender(),
+                                Collections.singletonList(String.valueOf(phoneLocation.getNumber())),
+                                polygonalArea.getOutMessage()));
+                    }
+                });
+                if (!gatewayRequestEntities.isEmpty()) {
+                    gateway.push(new GatewayRequest(gatewayRequestEntities));
                 }
 
                 polygonalArea.removeUsers();

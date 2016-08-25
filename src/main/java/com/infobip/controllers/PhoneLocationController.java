@@ -6,6 +6,9 @@ import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;
+import com.infobip.location.PolygonAreaAnalyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,11 +29,14 @@ public class PhoneLocationController {
 
     @Autowired
     private PhoneLocationRepository phoneLocationRepository;
-
     @Autowired
     private LocationAnalyzer locationAnalyzer;
+    @Autowired
+    private ExecutorService executorService;
+    @Autowired
+    private PolygonAreaAnalyzer polygonAreaAnalyzer;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
         return ResponseEntity.ok(phoneLocationRepository
                 .findAll()
@@ -37,21 +45,17 @@ public class PhoneLocationController {
                 .collect(Collectors.toList()));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getOne(@PathVariable("id") String id) {
         return ResponseEntity.ok(phoneLocationRepository.findOne(id));
-    }
-
-    @RequestMapping(value = "/filter")
-    public ResponseEntity filter(@RequestParam MultiValueMap<String, String> attributes) {
-        return ResponseEntity.ok(filterUsers(attributes));
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addOne(@RequestBody PhoneLocationResource resource) {
         PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
         phoneLocation.setUpdated(Calendar.getInstance().getTime());
-        phoneLocationRepository.save(phoneLocation);
+        phoneLocation = phoneLocationRepository.save(phoneLocation);
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return ResponseEntity.status(HttpStatus.CREATED).body(PhoneLocationResource.from(phoneLocation));
     }
 
@@ -64,26 +68,35 @@ public class PhoneLocationController {
     @RequestMapping(method = RequestMethod.DELETE)
     public ResponseEntity deleteAll() {
         phoneLocationRepository.deleteAll();
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteOne(@PathVariable String id) {
+    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteOne(@PathVariable("id") String id) {
         phoneLocationRepository.delete(id);
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
         return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
+    }
+
+    @RequestMapping(value = "/filter")
+    public ResponseEntity filter(@RequestParam MultiValueMap<String, String> attributes) {
+        return ResponseEntity.ok(filterUsers(attributes));
     }
 
     private void updateEntity(String id, PhoneLocationResource resource) {
         PhoneLocation phoneLocation = phoneLocationRepository.findOne(id);
         boolean wasUpdated = false;
+        boolean wasLocationUpdated = false;
 
         if (resource.getSubscriber() != null && resource.getSubscriber().getAttributes() != null) {
             phoneLocation.getSubscriber().replace(resource.getSubscriber().getAttributes());
+            wasUpdated = true;
         }
 
         if (resource.getNumber() != null) {
@@ -92,15 +105,18 @@ public class PhoneLocationController {
         }
 
         if (resource.getLocation() != null) {
-            phoneLocation.setLocation(
-                    LocationResource.to(resource.getLocation())
-            );
+            phoneLocation.setLocation(LocationResource.to(resource.getLocation()));
             wasUpdated = true;
+            wasLocationUpdated = true;
         }
 
         if (wasUpdated) {
             phoneLocation.setUpdated(Calendar.getInstance().getTime());
             phoneLocationRepository.save(phoneLocation);
+        }
+
+        if (wasLocationUpdated) {
+            executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         }
     }
 
