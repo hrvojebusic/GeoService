@@ -6,6 +6,9 @@ import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;
+import com.infobip.location.PolygonAreaAnalyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,20 +17,22 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/coordinates")
 public class PhoneLocationController {
 
-    private final PhoneLocationRepository phoneLocationRepository;
-    private final LocationAnalyzer locationAnalyzer;
-
     @Autowired
-    public PhoneLocationController(PhoneLocationRepository phoneLocationRepository, LocationAnalyzer locationAnalyzer) {
-        this.phoneLocationRepository = phoneLocationRepository;
-        this.locationAnalyzer = locationAnalyzer;
-    }
+    private PhoneLocationRepository phoneLocationRepository;
+    @Autowired
+    private LocationAnalyzer locationAnalyzer;
+    @Autowired
+    private ExecutorService executorService;
+    @Autowired
+    private PolygonAreaAnalyzer polygonAreaAnalyzer;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
@@ -37,9 +42,9 @@ public class PhoneLocationController {
         return ResponseEntity.ok(resources);
     }
 
-    @RequestMapping(path= "/users", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/users", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
-        return ResponseEntity.ok( locationAnalyzer.getPersonsForPolygon(resource));
+        return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -49,35 +54,44 @@ public class PhoneLocationController {
     }
 
     @RequestMapping(path = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity add(@RequestBody PhoneLocationResource resource) {
-        PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
-        phoneLocation.setUpdated(Calendar.getInstance().getTime());
-        phoneLocationRepository.save(phoneLocation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(PhoneLocationResource.from(phoneLocation));
+    public Callable<ResponseEntity> add(@RequestBody PhoneLocationResource resource) {
+        return () -> {
+            PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
+            phoneLocation.setUpdated(Calendar.getInstance().getTime());
+            phoneLocation = phoneLocationRepository.save(phoneLocation);
+            executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
+            return ResponseEntity.status(HttpStatus.CREATED).body(PhoneLocationResource.from(phoneLocation));
+        };
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity delete(@PathVariable String id) {
         phoneLocationRepository.delete(id);
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return ResponseEntity.ok().build();
     }
 
     private void updateEntity(String id, PhoneLocationResource resource) {
         PhoneLocation phoneLocation = phoneLocationRepository.findOne(id);
         boolean wasUpdated = false;
+        boolean wasLocationUpdated = false;
         if (resource.getLocation() != null) {
             phoneLocation.setLocation(
                     LocationResource.to(resource.getLocation())
             );
             wasUpdated = true;
+            wasLocationUpdated = true;
         }
         if (resource.getNumber() != null) {
             phoneLocation.setNumber(resource.getNumber());
             wasUpdated = true;
         }
-        if(wasUpdated){
+        if (wasUpdated) {
             phoneLocation.setUpdated(Calendar.getInstance().getTime());
             phoneLocationRepository.save(phoneLocation);
+        }
+        if (wasLocationUpdated) {
+            executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         }
     }
 }

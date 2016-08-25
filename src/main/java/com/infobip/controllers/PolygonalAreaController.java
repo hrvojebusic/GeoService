@@ -6,6 +6,7 @@ import com.infobip.database.model.PolygonalArea;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.database.repository.PolygonalAreaRepository;
 import com.infobip.location.LocationAnalyzer;
+import com.infobip.location.PolygonAreaAnalyzer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,18 +15,22 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/polygon")
 public class PolygonalAreaController {
 
-    private final PolygonalAreaRepository polygonalAreaRepository;
+    @Autowired
+    private PolygonalAreaRepository polygonalAreaRepository;
 
     @Autowired
-    public PolygonalAreaController(PolygonalAreaRepository polygonalAreaRepository) {
-        this.polygonalAreaRepository = polygonalAreaRepository;
-    }
+    private ExecutorService executorService;
+
+    @Autowired
+    private PolygonAreaAnalyzer polygonAreaAnalyzer;
+
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
@@ -39,6 +44,7 @@ public class PolygonalAreaController {
     public ResponseEntity add(@RequestBody PolygonalAreaResource resource) {
         PolygonalArea polygonalArea = PolygonalAreaResource.to(resource);
         polygonalAreaRepository.save(polygonalArea);
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
 

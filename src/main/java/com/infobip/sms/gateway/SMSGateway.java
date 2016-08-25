@@ -2,6 +2,8 @@ package com.infobip.sms.gateway;
 
 import com.infobip.sms.gateway.request.GatewayRequest;
 import com.infobip.sms.gateway.response.GatewayResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -10,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 
 public class SMSGateway {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SMSGateway.class);
 
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
@@ -34,6 +38,7 @@ public class SMSGateway {
     }
 
     public GatewayResponse push(GatewayRequest gatewayRequest) {
+        LOG.info(gatewayRequest.toString());
         return restTemplate.postForObject(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class);
     }
 }
