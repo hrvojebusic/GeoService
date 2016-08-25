@@ -48,18 +48,13 @@ public class PhoneLocationController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public DeferredResult getOne(@PathVariable("id") String id) {
+    public DeferredResult<ResponseEntity> getOne(@PathVariable("id") String id) {
         DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
 
 
-        phoneLocationRepository.findById(id).addCallback((result) -> {
-            if(result != null) {
-                deferredResult.setResult(ResponseEntity.ok(result));
-            }
-            else{
-                deferredResult.setResult(ResponseEntity.notFound().build());
-            }
-        }, (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
+        phoneLocationRepository.findById(id).addCallback((result) ->
+            deferredResult.setResult(ResponseEntity.ok(result))
+        , (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
 
         return deferredResult;
     }
