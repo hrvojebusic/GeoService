@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -17,7 +22,9 @@ public class SMSGateway {
 
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private AsyncRestTemplate restTemplate = new AsyncRestTemplate(
+            new HttpComponentsAsyncClientHttpRequestFactory()
+    );
 
     private HttpHeaders headers = new HttpHeaders();
 
@@ -37,8 +44,24 @@ public class SMSGateway {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     }
 
-    public GatewayResponse push(GatewayRequest gatewayRequest) {
+    public void push(GatewayRequest gatewayRequest, ListenableFutureCallback<GatewayResponse> callback) {
         LOG.info(gatewayRequest.toString());
-        return restTemplate.postForObject(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class);
+
+        ListenableFuture<ResponseEntity<GatewayResponse>> future =
+                restTemplate.postForEntity(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class);
+
+        future.addCallback(new ListenableFutureCallback<ResponseEntity<GatewayResponse>>() {
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                LOG.info(throwable.getMessage(), throwable);
+                callback.onFailure(throwable);
+            }
+
+            @Override
+            public void onSuccess(ResponseEntity<GatewayResponse> gatewayResponseResponseEntity) {
+                callback.onSuccess(gatewayResponseResponseEntity.getBody());
+            }
+        });
     }
 }

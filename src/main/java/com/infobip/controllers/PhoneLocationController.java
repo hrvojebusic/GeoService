@@ -15,11 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -33,8 +35,8 @@ public class PhoneLocationController {
     private LocationAnalyzer locationAnalyzer;
     @Autowired
     private ExecutorService executorService;
-    @Autowired
-    private PolygonAreaAnalyzer polygonAreaAnalyzer;
+
+    private PolygonAreaAnalyzer polygonAreaAnalyzer = null;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAll() {
@@ -46,8 +48,20 @@ public class PhoneLocationController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getOne(@PathVariable("id") String id) {
-        return ResponseEntity.ok(phoneLocationRepository.findOne(id));
+    public DeferredResult getOne(@PathVariable("id") String id) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+
+        phoneLocationRepository.findById(id).addCallback((result) -> {
+            if(result != null) {
+                deferredResult.setResult(ResponseEntity.ok(result));
+            }
+            else{
+                deferredResult.setResult(ResponseEntity.notFound().build());
+            }
+        }, (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
+
+        return deferredResult;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -124,7 +138,7 @@ public class PhoneLocationController {
         List<PhoneLocationResource> result = new ArrayList<>();
 
         for (PhoneLocation phoneLocation : phoneLocationRepository.findAll()) {
-            if(phoneLocation.matchesAttributes(attributes)) {
+            if (phoneLocation.matchesAttributes(attributes)) {
                 result.add(PhoneLocationResource.from(phoneLocation));
             }
         }
