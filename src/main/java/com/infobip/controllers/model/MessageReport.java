@@ -1,6 +1,9 @@
 package com.infobip.controllers.model;
 
-import lombok.*;
+import com.infobip.gateway.sms.response.GatewayResponse;
+import com.infobip.gateway.sms.response.GatewayResponseEntity;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,5 +25,20 @@ public class MessageReport {
 
     public List<MessageReportStatus> getMessageReportStatusList(){
         return Collections.unmodifiableList(messageReportStatusList);
+    }
+
+    public static MessageReport fromGatewayResponse(GatewayResponse gatewayResponse) {
+        MessageReport messageReport = new MessageReport(gatewayResponse.getBulkId());
+
+        for (GatewayResponseEntity gatewayResponseEntity : gatewayResponse.getMessages()) {
+            messageReport.addMessageStatus(new MessageReportStatus(
+                    gatewayResponseEntity.getTo(),
+                    gatewayResponseEntity.getStatus().getDescription(),
+                    gatewayResponseEntity.getSmsCount(),
+                    gatewayResponseEntity.getMessageId()
+            ));
+        }
+
+        return messageReport;
     }
 }

@@ -29,10 +29,14 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/coordinates")
 public class PhoneLocationController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PhoneLocationController.class);
+
     @Autowired
     private PhoneLocationRepository phoneLocationRepository;
+
     @Autowired
     private LocationAnalyzer locationAnalyzer;
+
     @Autowired
     private ExecutorService executorService;
 
@@ -53,8 +57,8 @@ public class PhoneLocationController {
 
 
         phoneLocationRepository.findById(id).addCallback((result) ->
-            deferredResult.setResult(ResponseEntity.ok(result))
-        , (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
+                        deferredResult.setResult(ResponseEntity.ok(result))
+                , (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
 
         return deferredResult;
     }
@@ -63,9 +67,8 @@ public class PhoneLocationController {
     public ResponseEntity addOne(@RequestBody PhoneLocationResource resource) {
         PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
         phoneLocation.setUpdated(Calendar.getInstance().getTime());
-        phoneLocation = phoneLocationRepository.save(phoneLocation);
-        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
-        return ResponseEntity.status(HttpStatus.CREATED).body(PhoneLocationResource.from(phoneLocation));
+        phoneLocationRepository.save(phoneLocation);
+        return new ResponseEntity<>(PhoneLocationResource.from(phoneLocation), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -88,10 +91,10 @@ public class PhoneLocationController {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
-        return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
-    }
+   // @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+   // public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
+   //     return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
+   // }
 
     @RequestMapping(value = "/filter")
     public ResponseEntity filter(@RequestParam MultiValueMap<String, String> attributes) {
@@ -139,5 +142,9 @@ public class PhoneLocationController {
         }
 
         return result;
+    }
+
+    private void scheduleRerun() {
+        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
     }
 }

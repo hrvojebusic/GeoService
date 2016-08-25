@@ -22,7 +22,5 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ExecutorService executorService(){
-        return Executors.newFixedThreadPool(6);
-    }
+    public ExecutorService executorService(){ return Executors.newFixedThreadPool(6); }
 }

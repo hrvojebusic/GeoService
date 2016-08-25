@@ -10,6 +10,8 @@ import com.infobip.gateway.sms.request.GatewayRequest;
 import com.infobip.gateway.sms.request.GatewayRequestEntity;
 import com.infobip.gateway.sms.response.GatewayResponse;
 import com.infobip.gateway.sms.response.GatewayResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -22,71 +24,61 @@ import java.util.stream.Collectors;
 @Component
 public class LocationAnalyzer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LocationAnalyzer.class);
+
     @Autowired
     private PhoneLocationRepository phoneLocationRepository;
 
     @Autowired
     private SMSGateway smsGateway;
 
-    public List<PhoneLocationResource> getPersonsForPolygon(PolygonResource polygonResource) {
-        try {
-            return phoneLocationRepository
-                    .findByLocationWithin(PolygonResource.to(polygonResource)).get()
-                    .stream()
-                    .map(phoneLocation -> PhoneLocationResource.from(phoneLocation))
-                    .collect(Collectors.toList());
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
+    public void getPersonsForPolygon(PolygonResource polygonResource,
+                                     ListenableFutureCallback<List<PhoneLocationResource>> callback) {
+        phoneLocationRepository
+                .findByLocationWithin(PolygonResource.to(polygonResource))
+                .addCallback(
+                        r -> callback.onSuccess(r.stream()
+                                .map(PhoneLocationResource::from)
+                                .collect(Collectors.toList())),
+                        t -> {
+                            LOG.error(t.getMessage(), t);
+                            callback.onFailure(t);
+                        }
+                );
     }
 
-    public void notifyPersonsSms(MessageRequest messageRequest, ListenableFutureCallback<MessageReport> callback) {
-
+    public void notifyPersonsSms(MessageRequest messageRequest,
+                                 ListenableFutureCallback<MessageReport> callback) {
         phoneLocationRepository
                 .findByLocationWithin(PolygonResource.to(messageRequest.getPolygon()))
-                .addCallback(new ListenableFutureCallback<List<PhoneLocation>>() {
+                .addCallback(
+                        r -> {
+                            GatewayRequest gatewayRequest = MessageRequest.toGatewayRequest(messageRequest, r);
+                            smsGateway.push(gatewayRequest, getCallbackForSmsGateway(gatewayRequest, callback));
+                        },
+                        t -> {
+                            LOG.error(t.getMessage(), t);
+                            callback.onFailure(t);
+                        }
+                );
+    }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        callback.onFailure(throwable);
-                    }
+    private ListenableFutureCallback<GatewayResponse> getCallbackForSmsGateway(
+            GatewayRequest gatewayRequest,
+            ListenableFutureCallback<MessageReport> callback) {
 
-                    @Override
-                    public void onSuccess(List<PhoneLocation> phoneLocations) {
+        return new ListenableFutureCallback<GatewayResponse>() {
 
-                        GatewayRequest gatewayRequest = new GatewayRequest(
-                                Collections.singletonList(new GatewayRequestEntity(
-                                        messageRequest.getSender(),
-                                        phoneLocations.stream().map(PhoneLocation::getNumber).map(String::valueOf).collect(Collectors.toList()),
-                                        messageRequest.getMessage()
-                                ))
-                        );
+            @Override
+            public void onFailure(Throwable throwable) {
+                LOG.error(throwable.getMessage(), throwable);
+                callback.onFailure(throwable);
+            }
 
-                        smsGateway.push(gatewayRequest, new ListenableFutureCallback<GatewayResponse>() {
-
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                callback.onFailure(throwable);
-                            }
-
-                            @Override
-                            public void onSuccess(GatewayResponse gatewayResponse) {
-
-                                MessageReport messageReport = new MessageReport(gatewayResponse.getBulkId());
-                                for (GatewayResponseEntity gatewayResponseEntity : gatewayResponse.getMessages()) {
-                                    messageReport.addMessageStatus(new MessageReportStatus(
-                                            gatewayResponseEntity.getTo(),
-                                            gatewayResponseEntity.getStatus().getDescription(),
-                                            gatewayResponseEntity.getSmsCount(),
-                                            gatewayResponseEntity.getMessageId()
-                                    ));
-                                }
-
-                                callback.onSuccess(messageReport);
-                            }
-                        });
-                    }
-                });
+            @Override
+            public void onSuccess(GatewayResponse gatewayResponse) {
+                callback.onSuccess(MessageReport.fromGatewayResponse(gatewayResponse));
+            }
+        };
     }
 }

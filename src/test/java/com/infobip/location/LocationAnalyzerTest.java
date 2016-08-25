@@ -22,6 +22,7 @@ public class LocationAnalyzerTest extends WebIntegrationTestBase {
     @Autowired
     private LocationAnalyzer locationAnalyzer;
 
+    /*
     @Test
     public void testEmpty() throws Exception {
         phoneLocationRepository.deleteAll();
@@ -40,6 +41,7 @@ public class LocationAnalyzerTest extends WebIntegrationTestBase {
         List<PhoneLocationResource> result = locationAnalyzer.getPersonsForPolygon(polygonResource);
         assertThat(result.size()).isEqualTo(2);
     }
+    */
 
     private List<PhoneLocation> getTestPhoneLocationList() {
         return Arrays.asList(
