@@ -1,6 +1,6 @@
 package com.infobip.config;
 
-import com.infobip.sms.gateway.SMSGateway;
+import com.infobip.gateway.sms.SMSGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

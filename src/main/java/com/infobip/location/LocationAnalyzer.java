@@ -4,11 +4,11 @@ import com.infobip.controllers.model.*;
 import com.infobip.controllers.model.resource.PhoneLocationResource;
 import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.repository.PhoneLocationRepository;
-import com.infobip.sms.gateway.SMSGateway;
-import com.infobip.sms.gateway.request.GatewayRequest;
-import com.infobip.sms.gateway.request.GatewayRequestEntity;
-import com.infobip.sms.gateway.response.GatewayResponse;
-import com.infobip.sms.gateway.response.GatewayResponseEntity;
+import com.infobip.gateway.sms.SMSGateway;
+import com.infobip.gateway.sms.request.GatewayRequest;
+import com.infobip.gateway.sms.request.GatewayRequestEntity;
+import com.infobip.gateway.sms.response.GatewayResponse;
+import com.infobip.gateway.sms.response.GatewayResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

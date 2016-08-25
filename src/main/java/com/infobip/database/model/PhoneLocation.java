@@ -5,8 +5,11 @@ import lombok.Data;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.util.MultiValueMap;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class PhoneLocation {
@@ -15,7 +18,7 @@ public class PhoneLocation {
     @Id
     private String id;
 
-    private Subscriber subscriber;
+    private Subscriber subscriber = new Subscriber();
 
     private Long number;
 
@@ -31,5 +34,30 @@ public class PhoneLocation {
         this.number = number;
         this.location = location;
         this.updated = updated;
+    }
+
+    public boolean matchesAttributes(MultiValueMap<String, String> attributes) {
+        Map<String, String> subscriberAttributes = subscriber.getAttributes();
+
+        for(Map.Entry<String, List<String>> entry : attributes.entrySet()) {
+
+            if(!subscriberAttributes.containsKey(entry.getKey())) {
+                return false;
+            }
+
+            boolean innerLoop = false;
+
+            for(String value : entry.getValue()) {
+                if(subscriberAttributes.get(entry.getKey()).equals(value)) {
+                    innerLoop = true;
+                }
+            }
+
+            if(!innerLoop) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

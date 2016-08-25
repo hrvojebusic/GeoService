@@ -1,4 +1,4 @@
-package com.infobip.sms.gateway.response;
+package com.infobip.gateway.sms.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

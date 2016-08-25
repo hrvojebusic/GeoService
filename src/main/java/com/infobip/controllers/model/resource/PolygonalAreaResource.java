@@ -1,14 +1,11 @@
-package com.infobip.controllers.model;
+package com.infobip.controllers.model.resource;
 
-import com.infobip.controllers.model.resource.LocationResource;
-import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PolygonalArea;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
 import org.springframework.data.geo.Point;
-import org.springframework.data.mongodb.core.geo.GeoJson;
 import org.springframework.data.mongodb.core.geo.GeoJsonPolygon;
 
 import java.util.ArrayList;

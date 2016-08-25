@@ -1,7 +1,7 @@
-package com.infobip.sms.gateway;
+package com.infobip.gateway.sms;
 
-import com.infobip.sms.gateway.request.GatewayRequest;
-import com.infobip.sms.gateway.response.GatewayResponse;
+import com.infobip.gateway.sms.request.GatewayRequest;
+import com.infobip.gateway.sms.response.GatewayResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
