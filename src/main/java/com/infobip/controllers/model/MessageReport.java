@@ -2,8 +2,7 @@ package com.infobip.controllers.model;
 
 import com.infobip.gateway.sms.response.GatewayResponse;
 import com.infobip.gateway.sms.response.GatewayResponseEntity;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,5 +39,19 @@ public class MessageReport {
         }
 
         return messageReport;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @Setter(AccessLevel.PRIVATE)
+    public static class MessageReportStatus {
+
+        private String number;
+
+        private String status;
+
+        private Integer smsCount;
+
+        private String messageId;
     }
 }
