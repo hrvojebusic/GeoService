@@ -2,6 +2,7 @@ package com.infobip.controllers;
 
 import com.infobip.controllers.model.resource.LocationResource;
 import com.infobip.controllers.model.resource.PhoneLocationResource;
+import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -131,12 +133,25 @@ public class PhoneLocationController {
         return deferredResult;
     }
 
-    /*
     @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
-       return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
+    public DeferredResult<ResponseEntity> getUsersInArea(@RequestBody PolygonResource resource) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+        locationAnalyzer.getPersonsForPolygon(resource, new ListenableFutureCallback<List<PhoneLocationResource>>() {
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                handleOnFailure(throwable, deferredResult);
+            }
+
+            @Override
+            public void onSuccess(List<PhoneLocationResource> phoneLocationResources) {
+                deferredResult.setResult(ResponseEntity.ok(phoneLocationResources));
+            }
+        });
+
+        return deferredResult;
     }
-    */
 
     @RequestMapping(value = "/filter")
     public DeferredResult<ResponseEntity> filter(@RequestParam MultiValueMap<String, String> attributes) {
