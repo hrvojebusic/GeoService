@@ -39,21 +39,21 @@ public class PhoneLocation {
     public boolean matchesAttributes(MultiValueMap<String, String> attributes) {
         Map<String, String> subscriberAttributes = subscriber.getAttributes();
 
-        for(Map.Entry<String, List<String>> entry : attributes.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : attributes.entrySet()) {
 
-            if(!subscriberAttributes.containsKey(entry.getKey())) {
+            if (!subscriberAttributes.containsKey(entry.getKey())) {
                 return false;
             }
 
             boolean innerLoop = false;
 
-            for(String value : entry.getValue()) {
-                if(subscriberAttributes.get(entry.getKey()).equals(value)) {
+            for (String value : entry.getValue()) {
+                if (subscriberAttributes.get(entry.getKey()).equals(value)) {
                     innerLoop = true;
                 }
             }
 
-            if(!innerLoop) {
+            if (!innerLoop) {
                 return false;
             }
         }

@@ -10,7 +10,8 @@ public class SubscriberResource {
 
     private Map<String, String> attributes = new HashMap<>();
 
-    protected SubscriberResource() {}
+    protected SubscriberResource() {
+    }
 
     public SubscriberResource(Map<String, String> attributes) {
         this.attributes.putAll(attributes);

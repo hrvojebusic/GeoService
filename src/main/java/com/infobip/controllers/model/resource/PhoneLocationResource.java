@@ -20,9 +20,10 @@ public class PhoneLocationResource {
 
     private Date updated;
 
-    protected PhoneLocationResource() {}
+    protected PhoneLocationResource() {
+    }
 
-    public static PhoneLocationResource from(PhoneLocation phoneLocation){
+    public static PhoneLocationResource from(PhoneLocation phoneLocation) {
         return new PhoneLocationResource(
                 phoneLocation.getId(),
                 SubscriberResource.from(phoneLocation.getSubscriber()),
@@ -31,7 +32,7 @@ public class PhoneLocationResource {
                 phoneLocation.getUpdated());
     }
 
-    public static PhoneLocation to(PhoneLocationResource phoneLocationResource){
+    public static PhoneLocation to(PhoneLocationResource phoneLocationResource) {
         return new PhoneLocation(
                 SubscriberResource.to(phoneLocationResource.getSubscriber()),
                 phoneLocationResource.getNumber(),

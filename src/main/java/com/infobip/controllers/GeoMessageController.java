@@ -3,8 +3,7 @@ package com.infobip.controllers;
 import com.infobip.controllers.model.MessageReport;
 import com.infobip.controllers.model.MessageRequest;
 import com.infobip.location.LocationAnalyzer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +17,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 @RestController
 @RequestMapping("/messages")
+@Slf4j
 public class GeoMessageController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(GeoMessageController.class);
 
     @Autowired
     private LocationAnalyzer locationAnalyzer;
@@ -33,7 +31,7 @@ public class GeoMessageController {
 
             @Override
             public void onFailure(Throwable throwable) {
-                LOG.error(throwable.getMessage(), throwable);
+                log.error(throwable.getMessage(), throwable);
                 deferredResult.setResult(ResponseEntity.status(500).build());
             }
 

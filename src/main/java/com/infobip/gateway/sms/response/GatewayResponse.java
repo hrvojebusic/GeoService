@@ -14,5 +14,6 @@ public class GatewayResponse {
 
     private List<GatewayResponseEntity> messages = new ArrayList<>();
 
-    protected GatewayResponse() {}
+    protected GatewayResponse() {
+    }
 }

@@ -7,8 +7,7 @@ import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;
 import com.infobip.location.PolygonAreaAnalyzer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,9 +25,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/coordinates")
+@Slf4j
 public class PhoneLocationController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PhoneLocationController.class);
 
     @Autowired
     private PhoneLocationRepository phoneLocationRepository;
@@ -39,7 +37,8 @@ public class PhoneLocationController {
     @Autowired
     private ExecutorService executorService;
 
-    private PolygonAreaAnalyzer polygonAreaAnalyzer = null;
+    @Autowired
+    private PolygonAreaAnalyzer polygonAreaAnalyzer;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<ResponseEntity> getAll() {
@@ -47,12 +46,12 @@ public class PhoneLocationController {
 
         phoneLocationRepository.findAll().addCallback(
                 r -> deferredResult.setResult(
-                            ResponseEntity.ok(
-                                    r       .stream()
-                                            .map(PhoneLocationResource::from)
-                                            .collect(Collectors.toList())
-                            )
-                    ),
+                        ResponseEntity.ok(
+                                r.stream()
+                                        .map(PhoneLocationResource::from)
+                                        .collect(Collectors.toList())
+                        )
+                ),
                 t -> handleOnFailure(t, deferredResult));
 
         return deferredResult;
@@ -78,7 +77,10 @@ public class PhoneLocationController {
         phoneLocation.setUpdated(Calendar.getInstance().getTime());
 
         phoneLocationRepository.save(phoneLocation).addCallback(
-                r -> deferredResult.setResult(new ResponseEntity<>(PhoneLocationResource.from(r), HttpStatus.CREATED)),
+                r -> {
+                    deferredResult.setResult(new ResponseEntity<>(PhoneLocationResource.from(r), HttpStatus.CREATED));
+                    scheduleRerun();
+                },
                 t -> handleOnFailure(t, deferredResult)
         );
 
@@ -91,7 +93,7 @@ public class PhoneLocationController {
 
         phoneLocationRepository.findById(id).addCallback(
                 p1 -> {
-                    if(updateEntity(p1, resource)) {
+                    if (updateEntity(p1, resource)) {
                         phoneLocationRepository.save(p1).addCallback(
                                 p2 -> deferredResult.setResult(ResponseEntity.ok().build()),
                                 t2 -> handleOnFailure(t2, deferredResult)
@@ -211,7 +213,7 @@ public class PhoneLocationController {
     }
 
     private void handleOnFailure(Throwable t, DeferredResult<ResponseEntity> deferredResult) {
-        LOG.error(t.getMessage(), t);
+        log.error(t.getMessage(), t);
         deferredResult.setResult(ResponseEntity.status(500).build());
     }
 

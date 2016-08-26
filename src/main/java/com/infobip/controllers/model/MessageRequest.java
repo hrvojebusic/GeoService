@@ -1,6 +1,5 @@
 package com.infobip.controllers.model;
 
-import com.infobip.controllers.model.resource.PhoneLocationResource;
 import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.gateway.sms.request.GatewayRequest;
@@ -28,7 +27,8 @@ public class MessageRequest {
     @NotNull
     private PolygonResource polygon;
 
-    protected MessageRequest(){}
+    protected MessageRequest() {
+    }
 
     public static GatewayRequest toGatewayRequest(MessageRequest messageRequest,
                                                   Collection<PhoneLocation> phoneLocations) {

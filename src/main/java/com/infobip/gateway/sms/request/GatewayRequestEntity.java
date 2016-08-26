@@ -11,8 +11,11 @@ import java.util.List;
 public class GatewayRequestEntity {
 
     private String from;
+
     private List<String> to = new ArrayList<>();
+
     private String text;
 
-    protected GatewayRequestEntity() {}
+    protected GatewayRequestEntity() {
+    }
 }
