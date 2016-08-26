@@ -54,6 +54,7 @@ public class PhoneLocationController {
                             )
                     ),
                 t -> handleOnFailure(t, deferredResult));
+        
         return deferredResult;
     }
 
