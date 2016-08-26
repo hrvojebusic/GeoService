@@ -54,7 +54,7 @@ public class PhoneLocationController {
                             )
                     ),
                 t -> handleOnFailure(t, deferredResult));
-        
+
         return deferredResult;
     }
 
@@ -134,7 +134,7 @@ public class PhoneLocationController {
         return deferredResult;
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<ResponseEntity> getUsersInArea(@RequestBody PolygonResource resource) {
         DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
 

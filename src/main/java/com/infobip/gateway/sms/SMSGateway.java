@@ -15,6 +15,8 @@ import java.util.Collections;
 
 public class SMSGateway {
 
+    private static final Logger TRAFFIC = LoggerFactory.getLogger("SMS traffic");
+
     private static final Logger LOG = LoggerFactory.getLogger(SMSGateway.class);
 
     private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
@@ -37,7 +39,7 @@ public class SMSGateway {
     }
 
     public void push(GatewayRequest gatewayRequest, ListenableFutureCallback<GatewayResponse> callback) {
-        LOG.info(gatewayRequest.toString());
+        TRAFFIC.info(gatewayRequest.toString());
 
         restTemplate
                 .postForEntity(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class)
