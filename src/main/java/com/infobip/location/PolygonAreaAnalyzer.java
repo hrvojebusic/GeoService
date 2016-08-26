@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-@Component
 public class PolygonAreaAnalyzer {
 
     @Autowired
@@ -30,12 +30,20 @@ public class PolygonAreaAnalyzer {
     private List<SMSGateway> gateways;
 
     public void checkPolygonalAreas() {
+        /*
         for (PolygonalArea polygonalArea : polygonalAreaRepository.findAll()) {
 
-            List<PhoneLocation> usersInArea = phoneLocationRepository.findByLocationWithin(new Polygon(
-                    polygonalArea.getPolygon().getPoints()
-                            .stream().map(coordinate -> new Point(coordinate.getX(), coordinate.getY()))
-                            .collect(Collectors.toList())));
+            List<PhoneLocation> usersInArea = null;
+            try {
+                usersInArea = phoneLocationRepository.findByLocationWithin(new Polygon(
+                        polygonalArea.getPolygon().getPoints()
+                                .stream().map(coordinate -> new Point(coordinate.getX(), coordinate.getY()))
+                                .collect(Collectors.toList()))).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
 
             List<PhoneLocation> usersThatEnteredTheArea = new ArrayList<>(usersInArea);
             List<String> usersThatLeftArea = new ArrayList<>(polygonalArea.getUsers());
@@ -43,7 +51,8 @@ public class PolygonAreaAnalyzer {
             // Delete all users that were previously in this area
             usersThatEnteredTheArea.removeIf(user -> polygonalArea.getUsers().contains(user.getId()));
             // Delete all users that are still in the area
-            usersThatLeftArea.removeIf(user -> usersInArea.stream()
+            final List<PhoneLocation> finalUsersInArea = usersInArea;
+            usersThatLeftArea.removeIf(user -> finalUsersInArea.stream()
                     .filter(areaUser -> areaUser.getId().equals(user))
                     .findFirst()
                     .isPresent());
@@ -78,5 +87,6 @@ public class PolygonAreaAnalyzer {
                 polygonalAreaRepository.save(polygonalArea);
             }
         }
+        */
     }
 }

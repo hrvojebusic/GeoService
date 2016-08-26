@@ -26,6 +26,7 @@ public class PolygonalAreaController {
     @Autowired
     private ExecutorService executorService;
 
+    /*
     @Autowired
     private PolygonAreaAnalyzer polygonAreaAnalyzer;
 
@@ -52,4 +53,5 @@ public class PolygonalAreaController {
         polygonalAreaRepository.delete(id);
         return ResponseEntity.ok().build();
     }
+    */
 }

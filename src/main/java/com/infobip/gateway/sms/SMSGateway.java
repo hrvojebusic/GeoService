@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
+import org.springframework.util.concurrent.ListenableFutureCallback;
+import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.Collections;
 
@@ -15,30 +17,36 @@ public class SMSGateway {
 
     private static final Logger LOG = LoggerFactory.getLogger(SMSGateway.class);
 
-    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private AsyncRestTemplate restTemplate = new AsyncRestTemplate(
+            new HttpComponentsAsyncClientHttpRequestFactory()
+    );
 
     private HttpHeaders headers = new HttpHeaders();
 
     private String gatewayUrl;
 
-    private String authorizationType;
-
-    private String authorizationKey;
-
     public SMSGateway(String gatewayUrl, String authorizationType, String authorizationKey) {
         this.gatewayUrl = gatewayUrl;
-        this.authorizationType = authorizationType;
-        this.authorizationKey = authorizationKey;
+        String authorizationHeaderValue = authorizationType + " " + authorizationKey;
 
-        headers.put(AUTHORIZATION_HEADER_NAME, Collections.singletonList(this.authorizationType + " " + this.authorizationKey));
+        headers.put(AUTHORIZATION_HEADER_KEY, Collections.singletonList(authorizationHeaderValue));
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     }
 
-    public GatewayResponse push(GatewayRequest gatewayRequest) {
+    public void push(GatewayRequest gatewayRequest, ListenableFutureCallback<GatewayResponse> callback) {
         LOG.info(gatewayRequest.toString());
-        return restTemplate.postForObject(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class);
+
+        restTemplate
+                .postForEntity(gatewayUrl, new HttpEntity<>(gatewayRequest, headers), GatewayResponse.class)
+                .addCallback(
+                        r -> callback.onSuccess(r.getBody()),
+                        t -> {
+                            LOG.info(t.getMessage(), t);
+                            callback.onFailure(t);
+                        }
+                );
     }
 }
