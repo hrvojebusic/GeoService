@@ -13,10 +13,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PolygonResource {
 
-    @Size(min=4)
+    @Size(min = 4)
     private List<LocationResource> coordinates;
 
-    protected PolygonResource() {}
+    protected PolygonResource() {
+    }
 
     public static Polygon to(PolygonResource polygonResource) {
         return new Polygon(
@@ -32,7 +33,7 @@ public class PolygonResource {
                 polygon
                         .getPoints()
                         .stream()
-                        .map(point -> new LocationResource(point.getX(),point.getY()))
+                        .map(point -> new LocationResource(point.getX(), point.getY()))
                         .collect(Collectors.toList())
         );
     }

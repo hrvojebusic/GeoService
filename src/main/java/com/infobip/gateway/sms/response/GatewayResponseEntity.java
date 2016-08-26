@@ -15,5 +15,18 @@ public class GatewayResponseEntity {
 
     private String messageId;
 
-    protected GatewayResponseEntity() {}
+    protected GatewayResponseEntity() {
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class GatewayResponseEntityStatus {
+
+        private String name;
+
+        private String description;
+
+        protected GatewayResponseEntityStatus() {
+        }
+    }
 }

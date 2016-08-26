@@ -3,20 +3,15 @@ package com.infobip.controllers;
 import com.infobip.controllers.model.resource.PolygonalAreaResource;
 import com.infobip.database.model.PolygonalArea;
 import com.infobip.database.repository.PolygonalAreaRepository;
-import com.infobip.location.LocationAnalyzer;
 import com.infobip.location.PolygonAreaAnalyzer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -38,14 +33,16 @@ public class PolygonalAreaController {
     public DeferredResult<ResponseEntity> getAll() {
         DeferredResult result = new DeferredResult();
 
-         polygonalAreaRepository
+        polygonalAreaRepository
                 .findAll()
                 .addCallback(polygonalAreas -> result.setResult(
                         ResponseEntity.status(HttpStatus.OK).body(
-                        polygonalAreas
-                        .stream()
-                        .map(PolygonalAreaResource::from)
-                        .collect(Collectors.toList()))) , e -> {log.info("Error",e);});
+                                polygonalAreas
+                                        .stream()
+                                        .map(PolygonalAreaResource::from)
+                                        .collect(Collectors.toList()))), e -> {
+                    log.info("Error", e);
+                });
 
         return result;
     }
@@ -60,10 +57,12 @@ public class PolygonalAreaController {
         polygonalAreaRepository
                 .save(polygonalArea)
                 .addCallback(polygonalArea1 -> result
-                        .setResult(ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(PolygonalAreaResource.from(polygonalArea))),
-                        e -> {log.info("Error", e);});
+                                .setResult(ResponseEntity
+                                        .status(HttpStatus.CREATED)
+                                        .body(PolygonalAreaResource.from(polygonalArea))),
+                        e -> {
+                            log.info("Error", e);
+                        });
         executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
         return result;
     }

@@ -16,13 +16,15 @@ public class MessageReport {
 
     private List<MessageReportStatus> messageReportStatusList = new ArrayList<>();
 
-    public MessageReport(String bulkId) { this.bulkId = bulkId; }
+    public MessageReport(String bulkId) {
+        this.bulkId = bulkId;
+    }
 
-    public void addMessageStatus(MessageReportStatus messageReportStatus){
+    public void addMessageStatus(MessageReportStatus messageReportStatus) {
         messageReportStatusList.add(messageReportStatus);
     }
 
-    public List<MessageReportStatus> getMessageReportStatusList(){
+    public List<MessageReportStatus> getMessageReportStatusList() {
         return Collections.unmodifiableList(messageReportStatusList);
     }
 

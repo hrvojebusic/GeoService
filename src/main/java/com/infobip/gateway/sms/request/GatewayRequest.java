@@ -12,5 +12,6 @@ public class GatewayRequest {
 
     private List<GatewayRequestEntity> messages = new ArrayList<>();
 
-    protected GatewayRequest() {}
+    protected GatewayRequest() {
+    }
 }

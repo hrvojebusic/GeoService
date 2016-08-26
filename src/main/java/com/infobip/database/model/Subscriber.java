@@ -19,7 +19,9 @@ public class Subscriber {
         attributes.put(key, value);
     }
 
-    public void removeAttribute(String key) { attributes.remove(key); }
+    public void removeAttribute(String key) {
+        attributes.remove(key);
+    }
 
     public void addAll(Map<String, String> attributes) {
         this.attributes.putAll(attributes);

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.geo.GeoJson;
 import org.springframework.data.mongodb.core.geo.GeoJsonPolygon;
 
 import java.util.ArrayList;
@@ -29,7 +28,8 @@ public class PolygonalArea {
 
     private GeoJsonPolygon polygon;
 
-    protected  PolygonalArea() {}
+    protected PolygonalArea() {
+    }
 
     public PolygonalArea(String inMessage, String outMessage, String sender, GeoJsonPolygon polygon) {
         this.inMessage = inMessage;
@@ -50,7 +50,7 @@ public class PolygonalArea {
         users.remove(id);
     }
 
-    public void removeUsers(){
+    public void removeUsers() {
         users.clear();
     }
 }

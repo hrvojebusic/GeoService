@@ -1,7 +1,6 @@
 package com.infobip.database.repository;
 
 import com.infobip.database.model.PolygonalArea;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.Repository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.concurrent.ListenableFuture;

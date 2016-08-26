@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 @Configuration
 public class BeanConfiguration {
 
+    private static final Integer EXECUTOR_THREADS = 6;
+
     private static final String smsUrl = "https://api.infobip.com/sms/1/text/multi";
 
     private static final String smsAuthorizationType = "Basic";
@@ -26,8 +28,8 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ExecutorService executorService(){
-        return Executors.newFixedThreadPool(6);
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(EXECUTOR_THREADS);
     }
 
     @Bean

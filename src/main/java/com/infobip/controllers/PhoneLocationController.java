@@ -46,12 +46,12 @@ public class PhoneLocationController {
 
         phoneLocationRepository.findAll().addCallback(
                 r -> deferredResult.setResult(
-                            ResponseEntity.ok(
-                                    r       .stream()
-                                            .map(PhoneLocationResource::from)
-                                            .collect(Collectors.toList())
-                            )
-                    ),
+                        ResponseEntity.ok(
+                                r.stream()
+                                        .map(PhoneLocationResource::from)
+                                        .collect(Collectors.toList())
+                        )
+                ),
                 t -> handleOnFailure(t, deferredResult));
 
         return deferredResult;
@@ -93,7 +93,7 @@ public class PhoneLocationController {
 
         phoneLocationRepository.findById(id).addCallback(
                 p1 -> {
-                    if(updateEntity(p1, resource)) {
+                    if (updateEntity(p1, resource)) {
                         phoneLocationRepository.save(p1).addCallback(
                                 p2 -> deferredResult.setResult(ResponseEntity.ok().build()),
                                 t2 -> handleOnFailure(t2, deferredResult)

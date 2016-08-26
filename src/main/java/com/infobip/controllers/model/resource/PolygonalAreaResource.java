@@ -42,10 +42,11 @@ public class PolygonalAreaResource {
         users.remove(id);
     }
 
-    protected PolygonalAreaResource() {}
+    protected PolygonalAreaResource() {
+    }
 
     public static PolygonalArea to(PolygonalAreaResource resource) {
-        return new PolygonalArea(resource.getInMessage(), resource.getOutMessage(),resource.getSender(),
+        return new PolygonalArea(resource.getInMessage(), resource.getOutMessage(), resource.getSender(),
                 new GeoJsonPolygon(resource.getPolygon().getCoordinates().stream().
                         map(coordinate -> new Point(coordinate.getX(), coordinate.getY())).collect(Collectors.toList())));
     }

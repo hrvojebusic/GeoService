@@ -16,7 +16,8 @@ public class LocationResource {
     @NotNull
     private Double y;
 
-    protected LocationResource() {}
+    protected LocationResource() {
+    }
 
     public static GeoJsonPoint to(LocationResource locationModel) {
         return new GeoJsonPoint(
