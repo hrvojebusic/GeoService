@@ -2,7 +2,6 @@ package com.infobip.controllers;
 
 import com.infobip.controllers.model.resource.LocationResource;
 import com.infobip.controllers.model.resource.PhoneLocationResource;
-import com.infobip.controllers.model.resource.PolygonResource;
 import com.infobip.database.model.PhoneLocation;
 import com.infobip.database.repository.PhoneLocationRepository;
 import com.infobip.location.LocationAnalyzer;
@@ -20,8 +19,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -43,105 +40,163 @@ public class PhoneLocationController {
     private PolygonAreaAnalyzer polygonAreaAnalyzer = null;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAll() {
-        return ResponseEntity.ok(phoneLocationRepository
-                .findAll()
-                .stream()
-                .map(PhoneLocationResource::from)
-                .collect(Collectors.toList()));
+    public DeferredResult<ResponseEntity> getAll() {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult();
+
+        phoneLocationRepository.findAll().addCallback(
+                r -> deferredResult.setResult(
+                            ResponseEntity.ok(
+                                    r       .stream()
+                                            .map(PhoneLocationResource::from)
+                                            .collect(Collectors.toList())
+                            )
+                    ),
+                t -> handleOnFailure(t, deferredResult));
+        return deferredResult;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<ResponseEntity> getOne(@PathVariable("id") String id) {
         DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
 
-
-        phoneLocationRepository.findById(id).addCallback((result) ->
-                        deferredResult.setResult(ResponseEntity.ok(result))
-                , (e) -> deferredResult.setResult(ResponseEntity.badRequest().body(e)));
+        phoneLocationRepository.findById(id).addCallback(
+                r -> deferredResult.setResult(ResponseEntity.ok(r)),
+                t -> handleOnFailure(t, deferredResult)
+        );
 
         return deferredResult;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addOne(@RequestBody PhoneLocationResource resource) {
+    public DeferredResult<ResponseEntity> addOne(@RequestBody PhoneLocationResource resource) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
         PhoneLocation phoneLocation = PhoneLocationResource.to(resource);
         phoneLocation.setUpdated(Calendar.getInstance().getTime());
-        phoneLocationRepository.save(phoneLocation);
-        return new ResponseEntity<>(PhoneLocationResource.from(phoneLocation), HttpStatus.CREATED);
+
+        phoneLocationRepository.save(phoneLocation).addCallback(
+                r -> deferredResult.setResult(new ResponseEntity<>(PhoneLocationResource.from(r), HttpStatus.CREATED)),
+                t -> handleOnFailure(t, deferredResult)
+        );
+
+        return deferredResult;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateOne(@PathVariable("id") String id, @RequestBody PhoneLocationResource resource) {
-        updateEntity(id, resource);
-        return ResponseEntity.ok().build();
+    public DeferredResult<ResponseEntity> updateOne(@PathVariable("id") String id, @RequestBody PhoneLocationResource resource) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+        phoneLocationRepository.findById(id).addCallback(
+                p1 -> {
+                    if(updateEntity(p1, resource)) {
+                        phoneLocationRepository.save(p1).addCallback(
+                                p2 -> deferredResult.setResult(ResponseEntity.ok().build()),
+                                t2 -> handleOnFailure(t2, deferredResult)
+                        );
+                    }
+                },
+                t1 -> handleOnFailure(t1, deferredResult)
+        );
+
+        return deferredResult;
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity deleteAll() {
-        phoneLocationRepository.deleteAll();
-        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
-        return ResponseEntity.ok().build();
+    public DeferredResult<ResponseEntity> deleteAll() {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+        phoneLocationRepository.deleteAll().addCallback(
+                v -> {
+                    deferredResult.setResult(ResponseEntity.ok().build());
+                    scheduleRerun();
+                },
+                t -> handleOnFailure(t, deferredResult)
+        );
+
+        return deferredResult;
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteOne(@PathVariable("id") String id) {
-        phoneLocationRepository.delete(id);
-        executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
-        return ResponseEntity.ok().build();
+    public DeferredResult<ResponseEntity> deleteOne(@PathVariable("id") String id) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+        phoneLocationRepository.delete(id).addCallback(
+                v -> {
+                    deferredResult.setResult(ResponseEntity.ok().build());
+                    scheduleRerun();
+                },
+                t -> handleOnFailure(t, deferredResult)
+        );
+
+        return deferredResult;
     }
 
-   // @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-   // public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
-   //     return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
-   // }
+    /*
+    @RequestMapping(value = "/users", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getUsersInArea(@RequestBody PolygonResource resource) {
+       return ResponseEntity.ok(locationAnalyzer.getPersonsForPolygon(resource));
+    }
+    */
 
     @RequestMapping(value = "/filter")
-    public ResponseEntity filter(@RequestParam MultiValueMap<String, String> attributes) {
-        return ResponseEntity.ok(filterUsers(attributes));
+    public DeferredResult<ResponseEntity> filter(@RequestParam MultiValueMap<String, String> attributes) {
+        DeferredResult<ResponseEntity> deferredResult = new DeferredResult<>();
+
+        phoneLocationRepository.findAll().addCallback(
+                r -> deferredResult.setResult(ResponseEntity.ok(filterUsers(r, attributes))),
+                t -> handleOnFailure(t, deferredResult)
+        );
+
+        return deferredResult;
     }
 
-    private void updateEntity(String id, PhoneLocationResource resource) {
-        PhoneLocation phoneLocation = phoneLocationRepository.findOne(id);
+    private boolean updateEntity(PhoneLocation existing, PhoneLocationResource resource) {
         boolean wasUpdated = false;
         boolean wasLocationUpdated = false;
 
         if (resource.getSubscriber() != null && resource.getSubscriber().getAttributes() != null) {
-            phoneLocation.getSubscriber().replace(resource.getSubscriber().getAttributes());
+            existing.getSubscriber().replace(resource.getSubscriber().getAttributes());
             wasUpdated = true;
         }
 
-        if (resource.getNumber() != null) {
-            phoneLocation.setNumber(resource.getNumber());
+        if (resource.getNumber() != null && !resource.getNumber().equals(existing.getNumber())) {
+            existing.setNumber(resource.getNumber());
             wasUpdated = true;
         }
 
-        if (resource.getLocation() != null) {
-            phoneLocation.setLocation(LocationResource.to(resource.getLocation()));
+        if (resource.getLocation() != null && !resource.getLocation().equals(existing.getLocation())) {
+            existing.setLocation(LocationResource.to(resource.getLocation()));
             wasUpdated = true;
             wasLocationUpdated = true;
         }
 
         if (wasUpdated) {
-            phoneLocation.setUpdated(Calendar.getInstance().getTime());
-            phoneLocationRepository.save(phoneLocation);
+            existing.setUpdated(Calendar.getInstance().getTime());
         }
 
         if (wasLocationUpdated) {
-            executorService.submit(() -> polygonAreaAnalyzer.checkPolygonalAreas());
+            scheduleRerun();
         }
+
+        return wasUpdated;
     }
 
-    private List<PhoneLocationResource> filterUsers(MultiValueMap<String, String> attributes) {
+    private List<PhoneLocationResource> filterUsers(List<PhoneLocation> phoneLocations,
+                                                    MultiValueMap<String, String> attributes) {
         List<PhoneLocationResource> result = new ArrayList<>();
 
-        for (PhoneLocation phoneLocation : phoneLocationRepository.findAll()) {
+        for (PhoneLocation phoneLocation : phoneLocations) {
             if (phoneLocation.matchesAttributes(attributes)) {
                 result.add(PhoneLocationResource.from(phoneLocation));
             }
         }
 
         return result;
+    }
+
+    private void handleOnFailure(Throwable t, DeferredResult<ResponseEntity> deferredResult) {
+        LOG.error(t.getMessage(), t);
+        deferredResult.setResult(ResponseEntity.status(500).build());
     }
 
     private void scheduleRerun() {

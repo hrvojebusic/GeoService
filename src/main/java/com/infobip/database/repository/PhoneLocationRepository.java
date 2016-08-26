@@ -10,20 +10,21 @@ import java.util.List;
 
 public interface PhoneLocationRepository extends Repository<PhoneLocation, String> {
 
-    List<PhoneLocation> findAll();
+    @Async
+    ListenableFuture<PhoneLocation> findById(String id);
+
+    @Async
+    ListenableFuture<List<PhoneLocation>> findAll();
 
     @Async
     ListenableFuture<PhoneLocation> save(PhoneLocation phoneLocation);
 
     @Async
-    ListenableFuture<PhoneLocation> findById(String id);
-
-    @Async
     ListenableFuture<List<PhoneLocation>> findByLocationWithin(Polygon polygon);
 
-    void deleteAll();
+    @Async
+    ListenableFuture<Void> delete(String id);
 
-    void delete(String id);
-
-    PhoneLocation findOne(String id);
+    @Async
+    ListenableFuture<Void> deleteAll();
 }
