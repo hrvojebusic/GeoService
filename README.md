@@ -1,0 +1,3 @@
+#GeoService
+
+Project demanded creating from scratch web based service which manages database of mobile phone numbers – subscribers, while tracking their location in near-real-time. Subscribers can then be targeted through polygons, defined by coordinates, and notified through SMS. Furthermore, permanent polygons can be defined, and all subscribers which left or entered defined polygon can be notified through SMS with appropriate message body – depending on whether they left or entered said polygon.
